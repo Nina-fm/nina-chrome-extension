@@ -10,7 +10,6 @@ var equalizer = {
   suffix: ".png",
   update: 80, // ms
 }
-var tabId = null;
 
 
 // SCRIPT
@@ -33,7 +32,6 @@ chrome.browserAction.onClicked.addListener(toggleAudio);
  * @param tab
  */
 function toggleAudio(tab) {
-  tabId = tab.id;
   if (ninaPlayer.paused) {
     ninaPlayer.play();
   } else {
@@ -62,7 +60,6 @@ function updateIcon() {
   // Update the icon
   chrome.browserAction.setIcon({
       path: icon,
-      tabId: tabId
     },
     function() {
       chrome.runtime.lastError;
