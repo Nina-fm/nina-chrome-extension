@@ -1,7 +1,6 @@
 // SETTINGS
 
 var stream_url = "http://flux.nina.fm/nina.mp3";
-var metadata_base_url = 'http://www.nina.fm/metadata';
 
 var mute = true;
 var equalizer = {
