@@ -2,12 +2,13 @@
 
 var stream_url = "http://flux.nina.fm/nina.mp3";
 var metadata_base_url = 'http://www.nina.fm/metadata';
+
 var mute = true;
 var equalizer = {
   min: 1,
   max: 11,
   current: 1,
-  prefix: "equalizer/step",
+  prefix: "img/equalizer/step",
   suffix: ".png",
   update: 80, // ms
 }

@@ -6,11 +6,11 @@
   "version": "0.1",
 
   "icons": {
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
   },
   "browser_action": {
-    "default_icon": "equalizer/stepoff.png",
+    "default_icon": "img/equalizer/stepoff.png",
     "default_title": "Nina.fm"
   },
   "permissions": [
