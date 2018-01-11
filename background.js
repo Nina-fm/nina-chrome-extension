@@ -81,20 +81,7 @@ function updateIcon() {
  */
 function checkPlayer() {
   if (!mute && time >= ninaPlayer.currentTime && time > 0) {
-    //Stream is not playing any more
-    checkConnection = function () {
-      $.ajax({
-        type: 'GET',
-        url: metadata_base_url,
-        success: function () {
-          console.log('reloading');
-          ninaPlayer = new Audio(stream_url);
-        },
-        error: checkConnection
-      });
-    };
-    checkConnection();
-    clearInterval(check_stream);
+    ninaPlayer.play();
   }
   time = ninaPlayer.currentTime;
 }
