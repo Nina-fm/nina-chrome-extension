@@ -1,6 +1,7 @@
 // SETTINGS
 
 var stream_url = "http://flux.nina.fm/nina.mp3";
+var metadata_base_url = 'http://www.nina.fm/metadata';
 var mute = true;
 var equalizer = {
   min: 1,
@@ -17,6 +18,10 @@ var equalizer = {
 // Initialize the player
 var ninaPlayer = new Audio(stream_url);
 ninaPlayer.pause();
+
+// Reloading when sound is down
+var time = ninaPlayer.currentTime;
+var check_stream = setInterval(checkPlayer, 1000);
 
 // Launch the icon periodical update
 updateIcon();
@@ -68,4 +73,27 @@ function updateIcon() {
   
   // Call this function again after a timeout
   window.setTimeout(updateIcon, equalizer.update);
+}
+
+/**
+ * Function to check the player status
+ */
+function checkPlayer() {
+  if (!mute && time >= ninaPlayer.currentTime && time > 0) {
+    //Stream is not playing any more
+    checkConnection = function () {
+      $.ajax({
+        type: 'GET',
+        url: metadata_base_url,
+        success: function () {
+          console.log('reloading');
+          ninaPlayer = new Audio(stream_url);
+        },
+        error: checkConnection
+      });
+    };
+    checkConnection();
+    clearInterval(check_stream);
+  }
+  time = ninaPlayer.currentTime;
 }
