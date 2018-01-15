@@ -1,8 +1,6 @@
 // SETTINGS
 
 var stream_url = "http://flux.nina.fm/nina.mp3";
-
-var mute = true;
 var equalizer = {
   min: 1,
   max: 11,
@@ -17,7 +15,8 @@ var equalizer = {
 
 // Initialize the player
 var ninaPlayer = new Audio(stream_url);
-ninaPlayer.pause();
+ninaPlayer.muted = true;
+ninaPlayer.play();
 
 // Reloading when sound is down
 var time = ninaPlayer.currentTime;
@@ -37,13 +36,7 @@ chrome.browserAction.onClicked.addListener(toggleAudio);
  * @param tab
  */
 function toggleAudio(tab) {
-  if (ninaPlayer.paused) {
-    ninaPlayer.load();
-    ninaPlayer.play();
-  } else {
-    ninaPlayer.pause();
-  }
-  mute = ninaPlayer.paused;
+  ninaPlayer.muted = !ninaPlayer.muted;
 }
 
 /**
@@ -55,7 +48,7 @@ function updateIcon() {
   let icon = equalizer.prefix + 'off' + equalizer.suffix;
   
   // If player is on, loop on the equalizer images
-  if (!mute) {
+  if (!ninaPlayer.muted) {
     if (equalizer.current > equalizer.max) {
       equalizer.current = equalizer.min;
     }
@@ -80,7 +73,7 @@ function updateIcon() {
  * Function to check the player status
  */
 function checkPlayer() {
-  if (!mute && time >= ninaPlayer.currentTime && time > 0) {
+  if (!ninaPlayer.muted && time >= ninaPlayer.currentTime && time > 0) {
     ninaPlayer.load();
     ninaPlayer.play();
   }
