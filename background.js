@@ -38,6 +38,7 @@ chrome.browserAction.onClicked.addListener(toggleAudio);
  */
 function toggleAudio(tab) {
   if (ninaPlayer.paused) {
+    ninaPlayer.load();
     ninaPlayer.play();
   } else {
     ninaPlayer.pause();
@@ -80,6 +81,7 @@ function updateIcon() {
  */
 function checkPlayer() {
   if (!mute && time >= ninaPlayer.currentTime && time > 0) {
+    ninaPlayer.load();
     ninaPlayer.play();
   }
   time = ninaPlayer.currentTime;
