@@ -1,8 +1,4 @@
 // SETTINGS
-
-var stream_url = "http://flux.nina.fm/nina.mp3";
-
-var mute = true;
 var equalizer = {
   min: 1,
   max: 11,
@@ -11,23 +7,30 @@ var equalizer = {
   suffix: ".png",
   update: 80, // ms
 }
+var settings, ninaPlayer, inactivity, time, checkStream;
 
 
 // SCRIPT
 
-// Initialize the player
-var ninaPlayer = new Audio(stream_url);
-ninaPlayer.pause();
+chrome.storage.sync.get(["stream_url", "inactivity_time"], function(data) {
+  settings = data;
+  
+  // Initialize the player
+  ninaPlayer = new Audio(settings.stream_url);
+  ninaPlayer.muted = true;
+  ninaPlayer.play();
 
-// Reloading when sound is down
-var time = ninaPlayer.currentTime;
-var check_stream = setInterval(checkPlayer, 1000);
+  // Reloading when sound is down
+  inactivity = Date.now();
+  time = ninaPlayer.currentTime;
+  checkStream = setInterval(checkPlayer, 1000);
 
-// Launch the icon periodical update
-updateIcon();
+  // Launch the icon periodical update
+  updateIcon();
 
-// Handle the click on extension icon
-chrome.browserAction.onClicked.addListener(toggleAudio);
+  // Handle the click on extension icon
+  chrome.browserAction.onClicked.addListener(toggleAudio);
+});
 
 
 // FUNCTIONS
@@ -40,10 +43,13 @@ function toggleAudio(tab) {
   if (ninaPlayer.paused) {
     ninaPlayer.load();
     ninaPlayer.play();
+    ninaPlayer.muted = false;
   } else {
-    ninaPlayer.pause();
+    ninaPlayer.muted = !ninaPlayer.muted;
+    if (ninaPlayer.muted) {
+      inactivity = Date.now();
+    }
   }
-  mute = ninaPlayer.paused;
 }
 
 /**
@@ -55,7 +61,7 @@ function updateIcon() {
   let icon = equalizer.prefix + 'off' + equalizer.suffix;
   
   // If player is on, loop on the equalizer images
-  if (!mute) {
+  if (!ninaPlayer.muted) {
     if (equalizer.current > equalizer.max) {
       equalizer.current = equalizer.min;
     }
@@ -77,12 +83,33 @@ function updateIcon() {
 }
 
 /**
+ * Check if the inactivity delay is expired
+ * @returns {boolean}
+ */
+function inactivityExpired() {
+  let inactivityDuration = Date.now() - inactivity;
+  let delay = settings.inactivity_time*1000;
+  return inactivityDuration > delay;
+}
+
+/**
+ * Check if the player is down
+ * @returns {boolean}
+ */
+function playerIsDown() {
+  return time >= ninaPlayer.currentTime && time > 0;
+}
+
+/**
  * Function to check the player status
  */
 function checkPlayer() {
-  if (!mute && time >= ninaPlayer.currentTime && time > 0) {
+  if (!ninaPlayer.muted && playerIsDown()) {
     ninaPlayer.load();
     ninaPlayer.play();
+  }
+  if (ninaPlayer.muted && inactivityExpired() ) {
+    ninaPlayer.pause()
   }
   time = ninaPlayer.currentTime;
 }

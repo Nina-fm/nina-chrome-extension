@@ -3,7 +3,7 @@
 
   "name": "Nina.fm",
   "description": "This extension allows the user to listen Nina.fm during the web browsing.",
-  "version": "0.1",
+  "version": "0.2",
 
   "icons": {
     "48": "img/icon48.png",
@@ -20,5 +20,9 @@
   ],
   "background": {
     "scripts": ["background.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
   }
 }
