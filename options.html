@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nina.fm Options</title>
+    <style>
+        body: { padding: 10px; }
+        .field { margin: 0 0 1rem 0; }
+        input[type=text] { width: 100%; }
+    </style>
+</head>
+
+<body>
+
+<div class="field">
+    <label for="stream_url">Stream URL</label>
+    <input type="text" id="stream_url">
+</div>
+
+<div class="field">
+    <label for="inactivity_time">Inactivity time (in seconds)</label>
+    <input type="text" id="inactivity_time">
+</div>
+
+<div id="status" class="field"></div>
+<button id="save">Save</button>
+
+<script src="options.js"></script>
+</body>
+</html>
