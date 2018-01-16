@@ -1,7 +1,4 @@
 // SETTINGS
-
-var streamURL = "http://flux.nina.fm/nina.mp3";
-var inactivityDelay = 180; // in seconds (default: 180 = 3min)
 var equalizer = {
   min: 1,
   max: 11,
@@ -10,25 +7,30 @@ var equalizer = {
   suffix: ".png",
   update: 80, // ms
 }
+var settings, ninaPlayer, inactivity, time, checkStream;
 
 
 // SCRIPT
 
-// Initialize the player
-var ninaPlayer = new Audio(streamURL);
-ninaPlayer.muted = true;
-ninaPlayer.play();
+chrome.storage.sync.get(["stream_url", "inactivity_time"], function(data) {
+  settings = data;
+  
+  // Initialize the player
+  ninaPlayer = new Audio(settings.stream_url);
+  ninaPlayer.muted = true;
+  ninaPlayer.play();
 
-// Reloading when sound is down
-var inactivity = Date.now();
-var time = ninaPlayer.currentTime;
-var checkStream = setInterval(checkPlayer, 1000);
+  // Reloading when sound is down
+  inactivity = Date.now();
+  time = ninaPlayer.currentTime;
+  checkStream = setInterval(checkPlayer, 1000);
 
-// Launch the icon periodical update
-updateIcon();
+  // Launch the icon periodical update
+  updateIcon();
 
-// Handle the click on extension icon
-chrome.browserAction.onClicked.addListener(toggleAudio);
+  // Handle the click on extension icon
+  chrome.browserAction.onClicked.addListener(toggleAudio);
+});
 
 
 // FUNCTIONS
@@ -86,7 +88,7 @@ function updateIcon() {
  */
 function inactivityExpired() {
   let inactivityDuration = Date.now() - inactivity;
-  let delay = inactivityDelay*1000;
+  let delay = settings.inactivity_time*1000;
   return inactivityDuration > delay;
 }
 
