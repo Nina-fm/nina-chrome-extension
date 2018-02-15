@@ -1,115 +1,145 @@
 // SETTINGS
+
 var equalizer = {
   min: 1,
   max: 11,
   current: 1,
-  prefix: "img/equalizer/step",
-  suffix: ".png",
+  prefix: 'img/equalizer/step',
+  suffix: '.png',
   update: 80, // ms
 }
-var settings, ninaPlayer, inactivity, time, checkStream;
-
 
 // SCRIPT
 
-chrome.storage.sync.get(["stream_url", "inactivity_time"], function(data) {
-  settings = data;
+var settings, ninaPlayer, inactivity, time, refreshInterval
+
+chrome.storage.sync.get(['stream_url', 'inactivity_time'], function (data) {
+  settings = data
   
   // Initialize the player
-  ninaPlayer = new Audio(settings.stream_url);
-  ninaPlayer.muted = true;
-  ninaPlayer.play();
-
-  // Reloading when sound is down
-  inactivity = Date.now();
-  time = ninaPlayer.currentTime;
-  checkStream = setInterval(checkPlayer, 1000);
-
+  ninaPlayer = new Audio(settings.stream_url)
+  ninaPlayer.muted = true
+  ninaPlayer.load()
+  
   // Launch the icon periodical update
-  updateIcon();
-
+  updateIcon()
+  
   // Handle the click on extension icon
-  chrome.browserAction.onClicked.addListener(toggleAudio);
-});
-
+  chrome.browserAction.onClicked.addListener(toggleAudio)
+})
 
 // FUNCTIONS
 
 /**
- * Callback function to toggle the mute status
- * @param tab
+ * Play the audio stream
  */
-function toggleAudio(tab) {
+function playAudio () {
+  ninaPlayer.src = settings.stream_url
+  ninaPlayer.muted = false
+  ninaPlayer.play()
+  
+  // Init data for inactivity check
+  inactivity = Date.now()
+  time = ninaPlayer.currentTime
+  
+  // Run the live refresh
+  refreshInterval = setInterval(refresh, 3000)
+}
+
+/**
+ * Stop the audio stream
+ */
+function stopAudio () {
+  // Stop the live refresh
+  clearInterval(refreshInterval)
+  
+  // Kill the audio stream with blank audio data
+  ninaPlayer.pause()
+  ninaPlayer.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAVFYAAFRWAAABAAgAZGF0YQAAAAA='
+  time = ninaPlayer.currentTime = 0
+  inactivity = Date.now()
+}
+
+/**
+ * Callback function to toggle the mute status
+ */
+function toggleAudio () {
   if (ninaPlayer.paused) {
-    ninaPlayer.load();
-    ninaPlayer.play();
-    ninaPlayer.muted = false;
+    playAudio()
   } else {
-    ninaPlayer.muted = !ninaPlayer.muted;
+    ninaPlayer.muted = !ninaPlayer.muted
     if (ninaPlayer.muted) {
-      inactivity = Date.now();
+      inactivity = Date.now()
     }
   }
 }
 
 /**
- * Function to update the extension icon
- * depending on the mute status
+ * Callback function for refreshing
  */
-function updateIcon() {
-  // Default icon is the off one
-  let icon = equalizer.prefix + 'off' + equalizer.suffix;
-  
-  // If player is on, loop on the equalizer images
-  if (!ninaPlayer.muted) {
-    if (equalizer.current > equalizer.max) {
-      equalizer.current = equalizer.min;
-    }
-    icon = equalizer.prefix + equalizer.current + equalizer.suffix;
-    equalizer.current++;
+function refresh () {
+  chrome.storage.sync.get(['stream_url', 'inactivity_time'], function (data) {
+    settings = data
+  })
+  checkPlayer()
+}
+
+/**
+ * Function to check the player status
+ */
+function checkPlayer () {
+  if (!ninaPlayer.muted && playerIsDown()) {
+    playAudio()
   }
-  
-  // Update the icon
-  chrome.browserAction.setIcon({
-      path: icon,
-    },
-    function() {
-      chrome.runtime.lastError;
-    }
-  );
-  
-  // Call this function again after a timeout
-  window.setTimeout(updateIcon, equalizer.update);
+  if (ninaPlayer.muted && inactivityExpired()) {
+    stopAudio()
+  }
 }
 
 /**
  * Check if the inactivity delay is expired
  * @returns {boolean}
  */
-function inactivityExpired() {
-  let inactivityDuration = Date.now() - inactivity;
-  let delay = settings.inactivity_time*1000;
-  return inactivityDuration > delay;
+function inactivityExpired () {
+  let inactivityDuration = Date.now() - inactivity
+  let delay = settings.inactivity_time * 1000
+  return inactivityDuration > delay
 }
 
 /**
  * Check if the player is down
  * @returns {boolean}
  */
-function playerIsDown() {
-  return time >= ninaPlayer.currentTime && time > 0;
+function playerIsDown () {
+  return time >= ninaPlayer.currentTime && time > 0
 }
 
 /**
- * Function to check the player status
+ * Function to update the extension icon
+ * depending on the mute status
  */
-function checkPlayer() {
-  if (!ninaPlayer.muted && playerIsDown()) {
-    ninaPlayer.load();
-    ninaPlayer.play();
+function updateIcon () {
+  // Default icon is the off one
+  let icon = equalizer.prefix + 'off' + equalizer.suffix
+  
+  // If player is on, loop on the equalizer images
+  if (ninaPlayer && !ninaPlayer.muted) {
+    if (equalizer.current > equalizer.max) {
+      equalizer.current = equalizer.min
+    }
+    icon = equalizer.prefix + equalizer.current + equalizer.suffix
+    equalizer.current++
   }
-  if (ninaPlayer.muted && inactivityExpired() ) {
-    ninaPlayer.pause()
-  }
-  time = ninaPlayer.currentTime;
+  
+  // Update the icon
+  chrome.browserAction.setIcon({
+      path: icon,
+    },
+    function () {
+      chrome.runtime.lastError
+    }
+  )
+  
+  // Call this function again after a timeout
+  window.setTimeout(updateIcon, equalizer.update)
 }
