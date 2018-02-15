@@ -43,7 +43,7 @@ function playAudio () {
   time = ninaPlayer.currentTime
   
   // Run the live refresh
-  refreshInterval = setInterval(refresh, 3000)
+  refreshInterval = setInterval(refresh, 1000)
 }
 
 /**
