@@ -9,15 +9,17 @@ var equalizer = {
   update: 80, // ms
 }
 
+var stream = 'http://flux.nina.fm/nina.mp3'
+
 // SCRIPT
 
 var settings, ninaPlayer, inactivity, time, refreshInterval
 
-chrome.storage.sync.get(['stream_url', 'inactivity_time'], function (data) {
+chrome.storage.sync.get(['inactivity_time'], function (data) {
   settings = data
   
   // Initialize the player
-  ninaPlayer = new Audio(settings.stream_url)
+  ninaPlayer = new Audio(stream)
   ninaPlayer.muted = true
   ninaPlayer.load()
   
@@ -34,7 +36,7 @@ chrome.storage.sync.get(['stream_url', 'inactivity_time'], function (data) {
  * Play the audio stream
  */
 function playAudio () {
-  ninaPlayer.src = settings.stream_url
+  ninaPlayer.src = stream
   ninaPlayer.muted = false
   ninaPlayer.play()
   
@@ -78,7 +80,7 @@ function toggleAudio () {
  * Callback function for refreshing
  */
 function refresh () {
-  chrome.storage.sync.get(['stream_url', 'inactivity_time'], function (data) {
+  chrome.storage.sync.get(['inactivity_time'], function (data) {
     settings = data
   })
   checkPlayer()

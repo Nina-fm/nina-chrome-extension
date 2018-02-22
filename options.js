@@ -1,12 +1,10 @@
 var default_options = {
-  stream_url: 'http://flux.nina.fm/nina.mp3',
   inactivity_time: 180
 }
 
 // SCRIPT
 
 // Get the option fields DOM
-var $stream_url = document.getElementById('stream_url')
 var $inactivity_time = document.getElementById('inactivity_time')
 
 // Option page load
@@ -24,10 +22,8 @@ document.getElementById('restore').addEventListener('click', restore_options)
  * from option fields to chrome sync data
  */
 function save_options () {
-  var stream_url = document.getElementById('stream_url').value
   var inactivity_time = parseInt(document.getElementById('inactivity_time').value, 10)
   chrome.storage.sync.set({
-    stream_url: stream_url,
     inactivity_time: inactivity_time
   }, function () {
     // Update status to let user know options were saved.
@@ -44,16 +40,12 @@ function save_options () {
  * and set the option fields
  */
 function get_options () {
-  chrome.storage.sync.get(['stream_url', 'inactivity_time'], function (data) {
-    if (data.stream_url) {
-      $stream_url.value = data.stream_url
-    }
+  chrome.storage.sync.get(['inactivity_time'], function (data) {
     if (data.inactivity_time) {
       $inactivity_time.value = data.inactivity_time
     }
     if (!data) {
       chrome.storage.sync.set(default_options, function () {
-        $stream_url.value = default_options.stream_url
         $inactivity_time.value = default_options.inactivity_time
       })
     }
@@ -66,7 +58,6 @@ function get_options () {
  */
 function restore_options () {
   chrome.storage.sync.set(default_options, function () {
-    $stream_url.value = default_options.stream_url
     $inactivity_time.value = default_options.inactivity_time
     var status = document.getElementById('status')
     status.textContent = 'Options restored.'
