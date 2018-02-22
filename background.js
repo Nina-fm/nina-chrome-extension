@@ -1,12 +1,16 @@
 // SETTINGS
 
+var default_options = {
+  inactivity_time: 30
+}
+
 var equalizer = {
   min: 1,
   max: 11,
   current: 1,
   prefix: 'img/equalizer/step',
   suffix: '.png',
-  update: 80, // ms
+  update: 80 // ms
 }
 
 var stream = 'http://flux.nina.fm/nina.mp3'
@@ -15,7 +19,8 @@ var stream = 'http://flux.nina.fm/nina.mp3'
 
 var settings, ninaPlayer, inactivity, time, refreshInterval
 
-chrome.storage.sync.get(['inactivity_time'], function (data) {
+chrome.storage.sync.get(default_options, function (data) {
+  chrome.storage.sync.set(data)
   settings = data
   
   // Initialize the player

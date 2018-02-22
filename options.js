@@ -1,5 +1,7 @@
+// SETTINGS
+
 var default_options = {
-  inactivity_time: 180
+  inactivity_time: 30
 }
 
 // SCRIPT
@@ -41,14 +43,17 @@ function save_options () {
  */
 function get_options () {
   chrome.storage.sync.get(['inactivity_time'], function (data) {
-    if (data.inactivity_time) {
-      $inactivity_time.value = data.inactivity_time
-    }
+    console.log('get options ->', data)
     if (!data) {
       chrome.storage.sync.set(default_options, function () {
         $inactivity_time.value = default_options.inactivity_time
       })
+    } else {
+      if (data.inactivity_time) {
+        $inactivity_time.value = data.inactivity_time
+      }
     }
+    console.log('options ->', data)
   })
 }
 
